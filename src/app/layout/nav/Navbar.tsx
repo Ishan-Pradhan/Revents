@@ -1,8 +1,10 @@
+import type { AppEvent } from "../../../lib/types";
+
 type Props = {
-  setFormOpen: (isOpen: boolean) => void;
+  formToggle: (events: AppEvent | null) => void;
 };
 
-const Navbar = ({ setFormOpen }: Props) => {
+const Navbar = ({ formToggle }: Props) => {
   return (
     <header className="p-3 w-full fixed top-0 z-50 bg-gradient-to-r from-primary to-black">
       <div className="flex align-middle items-center px-10 mx-auto gap-6 cursor-pointer">
@@ -16,7 +18,7 @@ const Navbar = ({ setFormOpen }: Props) => {
         </a>
         <nav className="flex gap-3 my-2 uppercase text-lg text-white">
           <a href="">Events</a>
-          <a onClick={() => setFormOpen(true)}>Create</a>
+          <a onClick={() => formToggle(null)}>Create</a>
         </nav>
         <div className="flex align-middle ml-auto gap-3">
           <button className="btn">Login</button>

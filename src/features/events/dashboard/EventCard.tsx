@@ -3,9 +3,11 @@ import EventAttendees from "./EventAttendees";
 
 type Props = {
   event: AppEvent;
+  formToggle: (event: AppEvent) => void;
+  deleteEvent: (eventId: string) => void;
 };
 
-const EventCard = ({ event }: Props) => {
+const EventCard = ({ event, formToggle, deleteEvent }: Props) => {
   const host = event.attendees.find(
     (attendee) => attendee.id === event.hostUid
   );
@@ -29,7 +31,20 @@ const EventCard = ({ event }: Props) => {
 
         <div className="card-actions flex">
           <div className="flex flex-1">Description</div>
-          <button className="btn btn-primary">View</button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => deleteEvent(event.id)}
+              className="btn btn-error"
+            >
+              Delete
+            </button>
+            <button
+              onClick={() => formToggle(event)}
+              className="btn btn-primary"
+            >
+              View
+            </button>
+          </div>
         </div>
       </div>
     </div>
