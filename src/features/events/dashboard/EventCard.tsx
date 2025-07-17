@@ -1,16 +1,17 @@
+import { useAppDispatch } from "../../../lib/stores/store";
 import type { AppEvent } from "../../../lib/types";
+import { deleteEvent, toggleForm } from "../eventSlice";
 import EventAttendees from "./EventAttendees";
 
 type Props = {
   event: AppEvent;
-  formToggle: (event: AppEvent) => void;
-  deleteEvent: (eventId: string) => void;
 };
 
-const EventCard = ({ event, formToggle, deleteEvent }: Props) => {
+const EventCard = ({ event }: Props) => {
   const host = event.attendees.find(
     (attendee) => attendee.id === event.hostUid
   );
+  const dispatch = useAppDispatch();
   return (
     <div className="card card-border bg-base-100 w-full">
       <div className="card-body">
@@ -33,13 +34,13 @@ const EventCard = ({ event, formToggle, deleteEvent }: Props) => {
           <div className="flex flex-1">Description</div>
           <div className="flex gap-3">
             <button
-              onClick={() => deleteEvent(event.id)}
+              onClick={() => dispatch(deleteEvent(event.id))}
               className="btn btn-error"
             >
               Delete
             </button>
             <button
-              onClick={() => formToggle(event)}
+              onClick={() => dispatch(toggleForm(event))}
               className="btn btn-primary"
             >
               View

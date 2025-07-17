@@ -1,19 +1,11 @@
 import { users } from "../../../lib/data/sampleData";
+import { useAppDispatch, useAppSelector } from "../../../lib/stores/store";
 import type { AppEvent } from "../../../lib/types";
+import { closeForm, createEvent, updateEvent } from "../eventSlice";
 
-type Props = {
-  setFormOpen: (isOpen: boolean) => void;
-  createEvent: (event: AppEvent) => void;
-  selectedEvent: AppEvent | null;
-  updateEvent: (event: AppEvent) => void;
-};
-
-const EventForm = ({
-  setFormOpen,
-  createEvent,
-  selectedEvent,
-  updateEvent,
-}: Props) => {
+const EventForm = () => {
+  const dispatch = useAppDispatch();
+  const selectedEvent = useAppSelector((state) => state.event.selectedEvent);
   const initialValues = selectedEvent ?? {
     title: "",
     category: "",
@@ -27,24 +19,26 @@ const EventForm = ({
     const data = Object.fromEntries(formData.entries()) as unknown as AppEvent;
 
     if (selectedEvent) {
-      updateEvent({ ...selectedEvent, ...data });
-      setFormOpen(false);
+      dispatch(updateEvent({ ...selectedEvent, ...data }));
+      dispatch(closeForm());
       return;
     } else {
-      createEvent({
-        ...data,
-        id: crypto.randomUUID(),
-        hostUid: users[0].uid,
-        attendees: [
-          {
-            id: users[0].uid,
-            displayName: users[0].displayName,
-            photoURL: users[0].photoURL,
-            isHost: true,
-          },
-        ],
-      });
-      setFormOpen(false);
+      dispatch(
+        createEvent({
+          ...data,
+          id: crypto.randomUUID(),
+          hostUid: users[0].uid,
+          attendees: [
+            {
+              id: users[0].uid,
+              displayName: users[0].displayName,
+              photoURL: users[0].photoURL,
+              isHost: true,
+            },
+          ],
+        })
+      );
+      dispatch(closeForm());
     }
   };
 
@@ -101,7 +95,7 @@ const EventForm = ({
         />
         <div className="flex justify-end w-full gap-3">
           <button
-            onClick={() => setFormOpen(false)}
+            onClick={() => dispatch(closeForm())}
             className="btn btn-neutral"
           >
             Cancel
