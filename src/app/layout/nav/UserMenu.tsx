@@ -1,7 +1,10 @@
 import { CalendarIcon, PowerIcon, UserIcon } from "@heroicons/react/24/outline";
-import { users } from "../../../lib/data/sampleData";
+import { useAppDispatch, useAppSelector } from "../../../lib/stores/store";
+import { signOut } from "../../../features/account/accountSlice";
 
 const UserMenu = () => {
+  const user = useAppSelector((state) => state.account.user);
+  const dispatch = useAppDispatch();
   return (
     <div className="dropdown dropdown-bottom dropdown-end">
       <div
@@ -11,10 +14,10 @@ const UserMenu = () => {
       >
         <div className="avatar">
           <div className="w-11 rounded-full">
-            <img src={users[0].photoURL} alt="user avatar" />
+            <img src={user?.photoURL || "/users.png"} alt="user avatar" />
           </div>
         </div>
-        <span>Bob</span>
+        <span>{user?.displayName}</span>
       </div>
       <ul
         tabIndex={0}
@@ -33,9 +36,9 @@ const UserMenu = () => {
           </div>
         </li>
         <div className="divicer my-0"></div>
-        <li>
+        <li onClick={() => dispatch(signOut())}>
           <div className="flex gap-3 items-center">
-            <PowerIcon className="size-6 text-error" />
+            <PowerIcon className="size-6 text-error " />
             Sign out
           </div>
         </li>

@@ -2,12 +2,14 @@ import { configureStore } from "@reduxjs/toolkit";
 import { CounterSlice } from "../../features/counter/CounterSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { eventSlice } from "../../features/events/eventSlice";
+import { accountSlice } from "../../features/account/accountSlice";
 // ...
 
 export const store = configureStore({
   reducer: {
     counter: CounterSlice.reducer,
     event: eventSlice.reducer,
+    account: accountSlice.reducer,
   },
 });
 
