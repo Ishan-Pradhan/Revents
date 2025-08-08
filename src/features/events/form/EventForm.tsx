@@ -1,11 +1,16 @@
+import { useNavigate, useParams } from "react-router";
 import { users } from "../../../lib/data/sampleData";
 import { useAppDispatch, useAppSelector } from "../../../lib/stores/store";
 import type { AppEvent } from "../../../lib/types";
-import { closeForm, createEvent, updateEvent } from "../eventSlice";
+import { createEvent, selectEvent, updateEvent } from "../eventSlice";
+import { useEffect, useRef } from "react";
 
 const EventForm = () => {
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const { id } = useParams<{ id: string }>();
   const selectedEvent = useAppSelector((state) => state.event.selectedEvent);
+  const formRef = useRef<HTMLFormElement>(null);
   const initialValues = selectedEvent ?? {
     title: "",
     category: "",
@@ -15,14 +20,24 @@ const EventForm = () => {
     venue: "",
   };
 
+  useEffect(() => {
+    if (id) {
+      dispatch(selectEvent(id));
+    } else {
+      dispatch(selectEvent(null));
+      formRef.current?.reset();
+    }
+  }, [dispatch, id]);
+
   const onSubmit = (formData: FormData) => {
     const data = Object.fromEntries(formData.entries()) as unknown as AppEvent;
 
     if (selectedEvent) {
       dispatch(updateEvent({ ...selectedEvent, ...data }));
-      dispatch(closeForm());
+      navigate(`/events/${selectedEvent.id}`);
       return;
     } else {
+      const id = crypto.randomUUID();
       dispatch(
         createEvent({
           ...data,
@@ -38,7 +53,7 @@ const EventForm = () => {
           ],
         })
       );
-      dispatch(closeForm());
+      navigate(`/events/${id}`);
     }
   };
 
@@ -47,7 +62,11 @@ const EventForm = () => {
       <h3 className="text-2xl font-semibold text-center text-primary">
         {selectedEvent ? "Edit Event" : "Create Event"}
       </h3>
-      <form action={onSubmit} className="flex flex-col gap-3 w-full">
+      <form
+        ref={formRef}
+        action={onSubmit}
+        className="flex flex-col gap-3 w-full"
+      >
         <input
           defaultValue={initialValues.title}
           name="title"
@@ -94,10 +113,7 @@ const EventForm = () => {
           placeholder="Venue"
         />
         <div className="flex justify-end w-full gap-3">
-          <button
-            onClick={() => dispatch(closeForm())}
-            className="btn btn-neutral"
-          >
+          <button onClick={() => navigate(-1)} className="btn btn-neutral">
             Cancel
           </button>
           <button type="submit" className="btn btn-primary">

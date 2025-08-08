@@ -1,10 +1,17 @@
 import { CalendarIcon, PowerIcon, UserIcon } from "@heroicons/react/24/outline";
 import { useAppDispatch, useAppSelector } from "../../../lib/stores/store";
 import { signOut } from "../../../features/account/accountSlice";
+import { useNavigate } from "react-router";
 
 const UserMenu = () => {
+  const navigate = useNavigate();
   const user = useAppSelector((state) => state.account.user);
   const dispatch = useAppDispatch();
+
+  const handleSignOut = () => {
+    dispatch(signOut());
+    navigate("/");
+  };
   return (
     <div className="dropdown dropdown-bottom dropdown-end">
       <div
@@ -36,7 +43,7 @@ const UserMenu = () => {
           </div>
         </li>
         <div className="divicer my-0"></div>
-        <li onClick={() => dispatch(signOut())}>
+        <li onClick={() => handleSignOut()}>
           <div className="flex gap-3 items-center">
             <PowerIcon className="size-6 text-error " />
             Sign out

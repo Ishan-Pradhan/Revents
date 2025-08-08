@@ -1,18 +1,10 @@
-import { useEffect } from "react";
-import { events } from "../../../lib/data/sampleData";
 import EventCard from "./EventCard";
 
 import Counter from "../../counter/Counter";
-import { useAppDispatch, useAppSelector } from "../../../lib/stores/store";
-import { setEvents } from "../eventSlice";
+import { useAppSelector } from "../../../lib/stores/store";
 
 const EventDashboard = () => {
-  const dispatch = useAppDispatch();
   const { events: appEvents } = useAppSelector((state) => state.event);
-
-  useEffect(() => {
-    dispatch(setEvents(events));
-  }, [dispatch]);
 
   return (
     <div className="flex gap-6 w-full">
