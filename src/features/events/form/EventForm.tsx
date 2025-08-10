@@ -3,56 +3,67 @@ import { users } from "../../../lib/data/sampleData";
 import { useAppDispatch, useAppSelector } from "../../../lib/stores/store";
 import type { AppEvent } from "../../../lib/types";
 import { createEvent, selectEvent, updateEvent } from "../eventSlice";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
+import { useForm, type FieldValues } from "react-hook-form";
+import UncontrolledInput from "../../../app/shared/components/UncontrolledInput";
 
 const EventForm = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { id } = useParams<{ id: string }>();
   const selectedEvent = useAppSelector((state) => state.event.selectedEvent);
-  const formRef = useRef<HTMLFormElement>(null);
-  const initialValues = selectedEvent ?? {
-    title: "",
-    category: "",
-    description: "",
-    date: "",
-    city: "",
-    venue: "",
-  };
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isValid },
+  } = useForm({
+    mode: "onTouched",
+    defaultValues: {
+      title: "",
+      category: "",
+      description: "",
+      date: "",
+      city: "",
+      venue: "",
+    },
+  });
 
   useEffect(() => {
     if (id) {
       dispatch(selectEvent(id));
+      if (selectedEvent) {
+        reset({
+          ...selectedEvent,
+          date: new Date(selectedEvent.date).toISOString().slice(0, 16),
+        });
+      }
     } else {
       dispatch(selectEvent(null));
-      formRef.current?.reset();
     }
-  }, [dispatch, id]);
+  }, [dispatch, id, reset, selectedEvent]);
 
-  const onSubmit = (formData: FormData) => {
-    const data = Object.fromEntries(formData.entries()) as unknown as AppEvent;
-
+  const onSubmit = (data: FieldValues) => {
     if (selectedEvent) {
       dispatch(updateEvent({ ...selectedEvent, ...data }));
       navigate(`/events/${selectedEvent.id}`);
       return;
     } else {
       const id = crypto.randomUUID();
-      dispatch(
-        createEvent({
-          ...data,
-          id: crypto.randomUUID(),
-          hostUid: users[0].uid,
-          attendees: [
-            {
-              id: users[0].uid,
-              displayName: users[0].displayName,
-              photoURL: users[0].photoURL,
-              isHost: true,
-            },
-          ],
-        })
-      );
+      const newEvent = {
+        ...data,
+        id: crypto.randomUUID(),
+        hostUid: users[0].uid,
+        attendees: [
+          {
+            id: users[0].uid,
+            displayName: users[0].displayName,
+            photoURL: users[0].photoURL,
+            isHost: true,
+          },
+        ],
+      };
+      dispatch(createEvent(newEvent as AppEvent));
       navigate(`/events/${id}`);
     }
   };
@@ -63,51 +74,41 @@ const EventForm = () => {
         {selectedEvent ? "Edit Event" : "Create Event"}
       </h3>
       <form
-        ref={formRef}
-        action={onSubmit}
+        onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col gap-3 w-full"
       >
-        <input
-          defaultValue={initialValues.title}
+        <UncontrolledInput
+          register={register}
           name="title"
-          type="text"
-          className="input input-lg w-full "
-          placeholder="Event title"
+          errors={errors}
+          options={{ required: "Title is required" }}
+          label="Title"
         />
         <input
-          defaultValue={initialValues.category}
-          name="category"
+          {...register("category")}
           type="text"
           className="input input-lg w-full "
           placeholder="Category"
         />
         <textarea
-          defaultValue={initialValues.description}
-          name="description"
+          {...register("description")}
           className="textarea textarea-lg w-full "
           placeholder="Description"
         />
         <input
-          defaultValue={
-            initialValues.date
-              ? new Date(initialValues.date).toISOString().slice(0, 16)
-              : ""
-          }
-          name="date"
+          {...register("date")}
           type="datetime-local"
           className="input input-lg w-full "
           placeholder="Date"
         />
         <input
-          defaultValue={initialValues.city}
-          name="city"
+          {...register("city")}
           type="text"
           className="input input-lg w-full "
           placeholder="City"
         />
         <input
-          defaultValue={initialValues.venue}
-          name="venue"
+          {...register("venue")}
           type="text"
           className="input input-lg w-full "
           placeholder="Venue"
@@ -116,7 +117,7 @@ const EventForm = () => {
           <button onClick={() => navigate(-1)} className="btn btn-neutral">
             Cancel
           </button>
-          <button type="submit" className="btn btn-primary">
+          <button disabled={!isValid} type="submit" className="btn btn-primary">
             Submit
           </button>
         </div>
