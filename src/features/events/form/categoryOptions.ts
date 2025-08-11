@@ -3,6 +3,6 @@ export const categoryOptions = [
   { key: "culture", label: "Culture" },
   { key: "film", label: "Film" },
   { key: "food", label: "Food" },
-  { key: "Music", label: "music" },
-  { key: "Travel", label: "travel" },
+  { key: "music", label: "Music" },
+  { key: "travel", label: "Travel" },
 ];
