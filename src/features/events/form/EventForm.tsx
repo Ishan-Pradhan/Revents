@@ -5,7 +5,16 @@ import type { AppEvent } from "../../../lib/types";
 import { createEvent, selectEvent, updateEvent } from "../eventSlice";
 import { useEffect } from "react";
 import { useForm, type FieldValues } from "react-hook-form";
-import UncontrolledInput from "../../../app/shared/components/UncontrolledInput";
+import TextInput from "../../../app/shared/components/TextInput";
+import {
+  eventFormSchema,
+  type EventFormSchema,
+} from "../../../lib/schemas/eventFormSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import TextArea from "../../../app/shared/components/TextArea";
+import SelectInput from "../../../app/shared/components/SelectInput";
+import { categoryOptions } from "./categoryOptions";
+import PlaceInput from "../../../app/shared/components/PlaceInput";
 
 const EventForm = () => {
   const navigate = useNavigate();
@@ -13,20 +22,13 @@ const EventForm = () => {
   const { id } = useParams<{ id: string }>();
   const selectedEvent = useAppSelector((state) => state.event.selectedEvent);
   const {
-    register,
+    control,
     handleSubmit,
     reset,
-    formState: { errors, isValid },
-  } = useForm({
+    formState: { isValid },
+  } = useForm<EventFormSchema>({
     mode: "onTouched",
-    defaultValues: {
-      title: "",
-      category: "",
-      description: "",
-      date: "",
-      city: "",
-      venue: "",
-    },
+    resolver: zodResolver(eventFormSchema),
   });
 
   useEffect(() => {
@@ -36,6 +38,11 @@ const EventForm = () => {
         reset({
           ...selectedEvent,
           date: new Date(selectedEvent.date).toISOString().slice(0, 16),
+          venue: {
+            venue: selectedEvent.venue,
+            latitude: selectedEvent.latitude,
+            longitude: selectedEvent.longitude,
+          },
         });
       }
     } else {
@@ -45,14 +52,25 @@ const EventForm = () => {
 
   const onSubmit = (data: FieldValues) => {
     if (selectedEvent) {
-      dispatch(updateEvent({ ...selectedEvent, ...data }));
+      dispatch(
+        updateEvent({
+          ...selectedEvent,
+          ...data,
+          venue: data.venue.venue,
+          latitude: data.venue.latitude,
+          longitude: data.venue.longitude,
+        })
+      );
       navigate(`/events/${selectedEvent.id}`);
       return;
     } else {
       const id = crypto.randomUUID();
       const newEvent = {
         ...data,
-        id: crypto.randomUUID(),
+        id,
+        venue: data.venue.venue,
+        latitude: data.venue.latitude,
+        longitude: data.venue.longitude,
         hostUid: users[0].uid,
         attendees: [
           {
@@ -75,44 +93,33 @@ const EventForm = () => {
       </h3>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col gap-3 w-full"
+        className="flex flex-col gap-6 w-full"
       >
-        <UncontrolledInput
-          register={register}
-          name="title"
-          errors={errors}
-          options={{ required: "Title is required" }}
-          label="Title"
+        <TextInput control={control} name="title" label="Title" />
+        <TextArea
+          control={control}
+          rows={3}
+          name="description"
+          label="Description"
         />
-        <input
-          {...register("category")}
-          type="text"
-          className="input input-lg w-full "
-          placeholder="Category"
-        />
-        <textarea
-          {...register("description")}
-          className="textarea textarea-lg w-full "
-          placeholder="Description"
-        />
-        <input
-          {...register("date")}
-          type="datetime-local"
-          className="input input-lg w-full "
-          placeholder="Date"
-        />
-        <input
-          {...register("city")}
-          type="text"
-          className="input input-lg w-full "
-          placeholder="City"
-        />
-        <input
-          {...register("venue")}
-          type="text"
-          className="input input-lg w-full "
-          placeholder="Venue"
-        />
+        <div className="flex gap-3 items-center w-full">
+          <SelectInput
+            control={control}
+            name="category"
+            label="Category"
+            options={categoryOptions}
+          />
+
+          <TextInput
+            control={control}
+            name="date"
+            type="datetime-local"
+            label="Date"
+            min={new Date()}
+          />
+        </div>
+        <PlaceInput control={control} name="venue" label="Venue" />
+
         <div className="flex justify-end w-full gap-3">
           <button onClick={() => navigate(-1)} className="btn btn-neutral">
             Cancel
