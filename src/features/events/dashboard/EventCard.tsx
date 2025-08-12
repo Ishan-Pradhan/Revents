@@ -14,7 +14,7 @@ const EventCard = ({ event }: Props) => {
     <div className="card card-border bg-base-100 w-full">
       <div className="card-body">
         <div className="flex gap-3 items-center">
-          <figure className="card-figure w-14 rounded-14">
+          <figure className="card-figure w-14 rounded-md">
             <img src={host?.photoURL || "/user.png"} alt="user avatar" />
           </figure>
           <div>
@@ -29,7 +29,7 @@ const EventCard = ({ event }: Props) => {
         </div>
 
         <div className="card-actions flex">
-          <div className="flex flex-1">Description</div>
+          <div className="flex flex-1">{event.description}</div>
           <div className="flex gap-3">
             <Link to={`/events/${event.id}`} className="btn btn-primary">
               View

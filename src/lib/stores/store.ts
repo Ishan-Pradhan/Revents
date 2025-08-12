@@ -3,6 +3,7 @@ import { CounterSlice } from "../../features/counter/CounterSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { eventSlice } from "../../features/events/eventSlice";
 import { accountSlice } from "../../features/account/accountSlice";
+import { firestoreSlice } from "../firebase/firestoreSlice";
 // ...
 
 export const store = configureStore({
@@ -10,6 +11,7 @@ export const store = configureStore({
     counter: CounterSlice.reducer,
     event: eventSlice.reducer,
     account: accountSlice.reducer,
+    firestore: firestoreSlice.reducer,
   },
 });
 

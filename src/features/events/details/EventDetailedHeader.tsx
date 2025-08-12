@@ -1,9 +1,7 @@
 import { Link } from "react-router";
-import { useAppSelector } from "../../../lib/stores/store";
+import type { AppEvent } from "../../../lib/types";
 
-const EventDetailedHeader = () => {
-  const event = useAppSelector((state) => state.event.selectedEvent);
-  if (!event) return <div>Event not found</div>;
+const EventDetailedHeader = ({ event }: { event: AppEvent }) => {
   const host = event?.attendees.find((x) => x.id === event.hostUid);
   return (
     <div className="card bg-base-100">

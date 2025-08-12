@@ -3,28 +3,27 @@ import {
   InformationCircleIcon,
   MapPinIcon,
 } from "@heroicons/react/24/outline";
-import { useAppSelector } from "../../../lib/stores/store";
 import { useState } from "react";
 import MapComponent from "../../../app/shared/components/MapComponent";
+import type { AppEvent } from "../../../lib/types";
 
-const EventDetailedInfo = () => {
-  const event = useAppSelector((state) => state.event.selectedEvent);
+const EventDetailedInfo = ({ event }: { event: AppEvent }) => {
   const [mapOpen, setMapOpen] = useState(false);
   return (
     <div className="card bg-base-100">
       <div className="flex flex-col align-middle">
         <div className="flex items-center gap-x-3 border-b border-neutral-300 py-3 pl-3">
           <InformationCircleIcon className="size-8" />
-          <span>{event?.description}</span>
+          <span>{event.description}</span>
         </div>
         <div className="flex items-center gap-x-3 border-b border-neutral-300 py-3 pl-3">
           <CalendarIcon className="size-8" />
-          <span>{event?.date}</span>
+          <span>{event.date}</span>
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-x-3 border-b border-neutral-300 py-3 pl-3">
             <MapPinIcon className="size-8" />
-            <span>{event?.venue}</span>
+            <span>{event.venue}</span>
           </div>
           <button
             className="btn btn-info btn-outline mr-2"
@@ -38,7 +37,7 @@ const EventDetailedInfo = () => {
         <div className="h-64">
           <MapComponent
             position={[event.latitude, event.longitude]}
-            venue={event?.venue}
+            venue={event.venue}
           />
         </div>
       )}
