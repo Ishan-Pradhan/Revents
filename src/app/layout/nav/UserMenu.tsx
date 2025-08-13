@@ -1,15 +1,15 @@
 import { CalendarIcon, PowerIcon, UserIcon } from "@heroicons/react/24/outline";
-import { useAppDispatch, useAppSelector } from "../../../lib/stores/store";
-import { signOut } from "../../../features/account/accountSlice";
+import { useAppSelector } from "../../../lib/stores/store";
 import { useNavigate } from "react-router";
+import { signOut } from "firebase/auth";
+import { auth } from "../../../lib/firebase/firebase";
 
 const UserMenu = () => {
   const navigate = useNavigate();
   const user = useAppSelector((state) => state.account.user);
-  const dispatch = useAppDispatch();
 
-  const handleSignOut = () => {
-    dispatch(signOut());
+  const handleSignOut = async () => {
+    await signOut(auth);
     navigate("/");
   };
   return (
@@ -21,7 +21,7 @@ const UserMenu = () => {
       >
         <div className="avatar">
           <div className="w-11 rounded-full">
-            <img src={user?.photoURL || "/users.png"} alt="user avatar" />
+            <img src={user?.photoURL || "/user.png"} alt="user avatar" />
           </div>
         </div>
         <span>{user?.displayName}</span>

@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { AppUser } from "../../lib/types";
+import type { User } from "firebase/auth";
 
 type State = {
   user: AppUser | null;
@@ -13,8 +14,21 @@ export const accountSlice = createSlice({
   name: "account",
   initialState,
   reducers: {
-    signIn: (state, action: PayloadAction<AppUser>) => {
-      state.user = action.payload;
+    signIn: {
+      reducer: (state, action: PayloadAction<AppUser>) => {
+        state.user = action.payload;
+      },
+      prepare: (user: User) => {
+        return {
+          payload: {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+            providerId: user.providerData[0].providerId,
+          } as AppUser,
+        };
+      },
     },
     signOut: (state) => {
       state.user = null;

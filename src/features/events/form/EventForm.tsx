@@ -7,7 +7,7 @@ import TextInput from "../../../app/shared/components/TextInput";
 import {
   eventFormSchema,
   type EventFormSchema,
-} from "../../../lib/schemas/eventFormSchema";
+} from "../../../lib/schemas/eventFormSchema.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TextArea from "../../../app/shared/components/TextArea";
 import SelectInput from "../../../app/shared/components/SelectInput";
@@ -132,7 +132,6 @@ const EventForm = () => {
             name="date"
             type="datetime-local"
             label="Date"
-            min={new Date()}
           />
         </div>
         <PlaceInput control={control} name="venue" label="Venue" />
