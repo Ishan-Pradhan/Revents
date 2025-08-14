@@ -4,7 +4,7 @@ import { setDocuments, setError, setLoading } from "../firebase/firestoreSlice";
 import { db } from "../firebase/firebase";
 import { toast } from "react-toastify";
 import { convertTimestamps } from "../util/util";
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback, useRef, useSyncExternalStore } from "react";
 
 type Options = {
   path: string;
@@ -22,10 +22,16 @@ export const useDocument = <T extends DocumentData>({
     id ? (state.firestore.documents[path]?.[id] as T) : undefined
   );
   const loading = useAppSelector((state) => state.firestore.loading);
+  const hasSetLoading = useRef(false);
+  const loadedInitial = useRef(false);
 
   const subscribeToDocument = useCallback(() => {
     if (!listen || !id) return () => {}; //no-op
-    dispatch(setLoading(true));
+
+    if (!hasSetLoading.current) {
+      dispatch(setLoading(true));
+      hasSetLoading.current = true;
+    }
     const docRef = doc(db, path, id);
     const unsubscibe = onSnapshot(
       docRef,
@@ -46,11 +52,13 @@ export const useDocument = <T extends DocumentData>({
           })
         );
         dispatch(setLoading(false));
+        loadedInitial.current = true;
       },
       (error) => {
         console.log(error);
         dispatch(setError(error.message));
         toast.error(error.message);
+        loadedInitial.current = true;
       }
     );
     return () => {
@@ -59,5 +67,5 @@ export const useDocument = <T extends DocumentData>({
   }, [dispatch, path, listen, id]);
 
   useSyncExternalStore(subscribeToDocument, () => documentData);
-  return { data: documentData, loading };
+  return { data: documentData, loading, loadedInitial: loadedInitial.current };
 };

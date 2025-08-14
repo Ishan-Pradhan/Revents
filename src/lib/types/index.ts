@@ -19,6 +19,7 @@ export type AppEvent = {
   latitude: number;
   longitude: number;
   hostUid: string;
+  isCancelled: boolean;
   attendees: Attendee[];
   attendeeIds: string[];
 };
@@ -57,4 +58,14 @@ export type Address = {
   suburb?: string;
   city?: string;
   postcode?: string;
+};
+
+export type Profile = {
+  id: string;
+  photoURL: string;
+  displayName: string;
+  createdAt: string;
+  description: string;
+  followersCount: number;
+  followingcount: number;
 };

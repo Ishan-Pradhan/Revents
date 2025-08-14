@@ -1,6 +1,6 @@
 import { collection, onSnapshot, type DocumentData } from "firebase/firestore";
 import { useAppDispatch, useAppSelector } from "../stores/store";
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback, useRef, useSyncExternalStore } from "react";
 import {
   setCollections,
   setError,
@@ -24,10 +24,16 @@ export const useCollection = <T extends DocumentData>({
     (state) => state.firestore.collections[path] as T[]
   );
   const loading = useAppSelector((state) => state.firestore.loading);
+  const hasSetLoading = useRef(false);
+  const loadedInitial = useRef(false);
 
   const subscribeTocollection = useCallback(() => {
     if (!listen) return () => {}; //no-op
-    dispatch(setLoading(true));
+
+    if (!hasSetLoading.current) {
+      dispatch(setLoading(true));
+      hasSetLoading.current = true;
+    }
     const colRef = collection(db, path);
     const unsubscibe = onSnapshot(
       colRef,
@@ -39,11 +45,13 @@ export const useCollection = <T extends DocumentData>({
         });
         dispatch(setCollections({ path, data }));
         dispatch(setLoading(false));
+        loadedInitial.current = true;
       },
       (error) => {
         console.log(error);
         dispatch(setError(error.message));
         toast.error(error.message);
+        loadedInitial.current = true;
       }
     );
     return () => {
@@ -52,5 +60,9 @@ export const useCollection = <T extends DocumentData>({
   }, [dispatch, path, listen]);
 
   useSyncExternalStore(subscribeTocollection, () => collectionData);
-  return { data: collectionData, loading };
+  return {
+    data: collectionData,
+    loading,
+    loadedInitial: loadedInitial.current,
+  };
 };
