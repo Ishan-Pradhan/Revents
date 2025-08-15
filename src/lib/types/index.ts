@@ -1,4 +1,5 @@
 import type { Timestamp } from "firebase-admin/firestore";
+import type { OrderByDirection, WhereFilterOp } from "firebase/firestore";
 
 export type AppUser = {
   uid: string;
@@ -68,4 +69,30 @@ export type Profile = {
   description: string;
   followersCount: number;
   followingcount: number;
+};
+
+export type CollectionOptions = {
+  queries?: QueryOptions[];
+  sort?: SortOptions;
+};
+
+export type QueryOptions = {
+  attribute: string;
+  operator: WhereFilterOp;
+  value: string | number | boolean | Date | Timestamp;
+  isDate?: boolean;
+};
+
+export type SortOptions = {
+  attribute: string;
+  direction: OrderByDirection;
+};
+
+export type chatComment = {
+  id: string;
+  displayName: string;
+  photoURL: string;
+  uid: string;
+  text: string;
+  date: string;
 };
