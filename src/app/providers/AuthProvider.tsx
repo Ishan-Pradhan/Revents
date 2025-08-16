@@ -2,17 +2,25 @@ import { onAuthStateChanged } from "firebase/auth";
 import { useAppDispatch } from "../../lib/stores/store";
 import { signIn, signOut } from "../../features/account/accountSlice";
 import { handleError } from "../../lib/util/util";
-import { auth } from "../../lib/firebase/firebase";
-import { useEffect } from "react";
+import { auth, db } from "../../lib/firebase/firebase";
+import { useCallback, useEffect } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { setFollowings } from "../../features/profiles/followSlice";
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useAppDispatch();
+  const getFollowingIds = useCallback(async (uid: string) => {
+    const followingIdsRef = doc(db, `profiles/${uid}/lookup`, "followingIds");
+    const snapshot = await getDoc(followingIdsRef);
+    return snapshot.data()?.ids || [];
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, {
       next: (user) => {
         if (user) {
           dispatch(signIn(user));
+          getFollowingIds(user.uid).then((ids) => dispatch(setFollowings(ids)));
         } else {
           dispatch(signOut());
         }
@@ -25,7 +33,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       unsubscribe();
     };
-  }, [dispatch]);
+  }, [dispatch, getFollowingIds]);
   return <>{children}</>;
 };
 

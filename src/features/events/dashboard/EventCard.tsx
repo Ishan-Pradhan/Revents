@@ -3,6 +3,7 @@ import type { AppEvent } from "../../../lib/types";
 import EventAttendees from "./EventAttendees";
 import { useEvent } from "../../../lib/hooks/useEvent";
 import { formatDateTime } from "../../../lib/util/util";
+import { useFollowings } from "../../../lib/hooks/useFollowing";
 
 type Props = {
   event: AppEvent;
@@ -10,6 +11,10 @@ type Props = {
 
 const EventCard = ({ event }: Props) => {
   const { host, isGoing, isHost } = useEvent(event);
+  const { followingIds } = useFollowings();
+  const count = event.attendees.filter((a) =>
+    followingIds.includes(a.id)
+  ).length;
   return (
     <div className="card card-border bg-base-100 w-full">
       <div className="card-body">
@@ -38,15 +43,20 @@ const EventCard = ({ event }: Props) => {
         <div className="card-actions flex items-center">
           <div className="flex flex-1">
             <div className="flex flex-col gap-1">
-              <span>{formatDateTime(event.date)}</span>
-              {isHost && (
-                <span className="badge badge-info badge-soft">Hosting</span>
-              )}
-              {isGoing && (
-                <span className="badge badge-success badge-soft">
-                  Attending
-                </span>
-              )}
+              <div className="flex gap-2 items-center">
+                <span>{formatDateTime(event.date)}</span>
+                {isHost && (
+                  <span className="badge badge-info badge-soft">Hosting</span>
+                )}
+                {isGoing && (
+                  <span className="badge badge-success badge-soft">
+                    Attending
+                  </span>
+                )}
+              </div>
+              <div className="text-primary">
+                People you follow attending: {count}
+              </div>
             </div>
           </div>
           <div className="flex gap-3">

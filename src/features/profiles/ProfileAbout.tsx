@@ -44,6 +44,8 @@ const ProfileAbout = ({ profile, editMode, setEditMode }: Props) => {
     }
   };
 
+  console.log(profile.description);
+
   return (
     <>
       {!editMode ? (

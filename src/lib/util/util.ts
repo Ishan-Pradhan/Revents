@@ -44,8 +44,28 @@ export function handleError(error: unknown) {
   }
 }
 
-export const formatDateTime = (date: string) => {
-  return format(new Date(date), "dd MMM yyyy h:mm a");
+// export const formatDateTime = (date: string) => {
+//   return format(new Date(date), "dd MMM yyyy h:mm a");
+// };
+
+export const formatDateTime = (
+  date: string | number | Date | Timestamp | null | undefined
+) => {
+  if (!date) return "N/A";
+
+  let d: Date;
+
+  if (date instanceof Timestamp) {
+    d = date.toDate();
+  } else if (date instanceof Date) {
+    d = date;
+  } else {
+    d = new Date(date);
+  }
+
+  if (isNaN(d.getTime())) return "N/A";
+
+  return format(d, "dd MMM yyyy h:mm a");
 };
 
 export const timeAgo = (date: string | number) => {

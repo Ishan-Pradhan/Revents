@@ -1,12 +1,52 @@
 import { useNavigate } from "react-router";
 import { useCollection } from "../../lib/hooks/useCollection";
-import type { Profile } from "../../lib/types";
+import type { CollectionOptions, Profile } from "../../lib/types";
 import { formatDateTime } from "../../lib/util/util";
+import { useFollowings } from "../../lib/hooks/useFollowing";
+import { useMemo, useState } from "react";
+import { useAppSelector } from "../../lib/stores/store";
+import clsx from "clsx";
 
-const ProfileMembers = () => {
+type Props = {
+  profile: Profile;
+  followFilter: string;
+};
+const ProfileMembers = ({ profile, followFilter }: Props) => {
   const navigate = useNavigate();
+
+  const currentUser = useAppSelector((state) => state.account.user);
+
+  const [target, setTarget] = useState("");
+
+  const { followingIds, followUser, unfollowUser, loading } = useFollowings();
+
+  const followToggle = (
+    event: React.MouseEvent<HTMLButtonElement>,
+    member: Profile
+  ) => {
+    event.stopPropagation();
+    event.preventDefault();
+    setTarget(member.id);
+    if (followingIds.includes(member.id)) {
+      unfollowUser(member);
+    } else {
+      followUser(member);
+    }
+  };
+
+  const options = useMemo(() => {
+    return {
+      sort: { attribute: "displayName", direction: "asc" },
+    } as CollectionOptions;
+  }, []);
   const { data: members, loadedInitial } = useCollection<Profile>({
-    path: "profiles",
+    path:
+      followFilter === "followers"
+        ? `profiles/${profile.id}/followers`
+        : followFilter === "following"
+        ? `profiles/${profile.id}/following`
+        : `profiles`,
+    collectionOptions: options,
   });
   if (!loadedInitial) <div>loading...</div>;
   return (
@@ -15,12 +55,12 @@ const ProfileMembers = () => {
         <thead>
           <tr>
             <th>Name</th>
-            <th>Joined</th>
+            {followFilter === "all" && <th>Joined</th>}
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {(members || []).map((member) => (
+          {(members || [])?.map((member) => (
             <tr
               key={member.id}
               onClick={() => navigate(`/profiles/${member.id}`)}
@@ -38,15 +78,35 @@ const ProfileMembers = () => {
                   </div>
                   <div className="flex flex-col items-start gap-1">
                     <div>{member.displayName}</div>
-                    <div className="badbe badge-soft badge-info badge-sm px-1 rounded-none">
-                      Following
-                    </div>
+                    {followingIds.includes(member.id) && (
+                      <div className="badbe badge-soft badge-info badge-sm px-1 rounded-none">
+                        Following
+                      </div>
+                    )}
                   </div>
                 </div>
               </td>
-              <td>{formatDateTime(member.createdAt)}</td>
+              {followFilter === "all" && (
+                <td>{formatDateTime(member.createdAt)}</td>
+              )}
               <td>
-                <button className="btn btn-sm btn-outline">Follow</button>
+                <button
+                  onClick={(event) => followToggle(event, member)}
+                  disabled={
+                    (loading && target === member.id) ||
+                    member.id === currentUser?.uid
+                  }
+                  className={clsx("btn btn-sm btn-outline w-25", {
+                    "btn-error": followingIds.includes(member.id),
+                    "btn-primary": !followingIds.includes(member.id),
+                  })}
+                >
+                  {loading && target === member.id && (
+                    <span className="loading loading-spinner"></span>
+                  )}
+
+                  {followingIds.includes(member.id) ? "Unfollow" : "Follow"}
+                </button>
               </td>
             </tr>
           ))}
