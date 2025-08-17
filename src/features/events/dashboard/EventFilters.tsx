@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { Calendar } from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import { useAppDispatch, useAppSelector } from "../../../lib/stores/store";
-import type { QueryOptions } from "../../../lib/types";
+import { type QueryOptions } from "../../../lib/types";
 import { setCollectionOptions } from "../../../lib/firebase/firestoreSlice";
 
 type Props = {
@@ -16,7 +16,7 @@ type Props = {
   filter: { query: string; startDate: string };
 };
 
-const EventFilters = ({ setFilter, filter }: Props) => {
+export default function EventFilters({ setFilter, filter }: Props) {
   const dispatch = useAppDispatch();
   const currentUser = useAppSelector((state) => state.account.user);
   const [calendarViewDate, setCalendarViewDate] = useState(new Date());
@@ -31,30 +31,32 @@ const EventFilters = ({ setFilter, filter }: Props) => {
     { key: "hosting", label: "I'm hosting", icon: AcademicCapIcon },
   ];
 
-  useEffect(() => {
-    if (!currentUser) return;
+  const handleFilterChange = ({
+    query,
+    startDate,
+  }: {
+    query?: string;
+    startDate?: string;
+  }) => {
+    if (!currentUser && query) return;
 
     const q: QueryOptions[] = [
       {
         attribute: "date",
         operator: ">=",
-        value: filter.startDate,
+        value: startDate || filter.startDate,
         isDate: true,
       },
     ];
 
-    if (filter.query === "going") {
+    if (query === "going" && currentUser) {
       q.push({
         attribute: "attendeeIds",
         operator: "array-contains",
         value: currentUser.uid,
       });
-    } else if (filter.query === "hosting") {
-      q.push({
-        attribute: "hostUid ",
-        operator: "array-contains",
-        value: currentUser.uid,
-      });
+    } else if (query === "hosting" && currentUser) {
+      q.push({ attribute: "hostUid", operator: "==", value: currentUser.uid });
     }
 
     dispatch(
@@ -62,36 +64,50 @@ const EventFilters = ({ setFilter, filter }: Props) => {
         options: {
           queries: q,
           sort: { attribute: "date", direction: "asc" },
+          pageNumber: 1,
         },
         path: "events",
       })
     );
-  }, [currentUser, filter, dispatch]);
+    setFilter({
+      ...filter,
+      query: query || filter.query,
+      startDate: startDate || filter.startDate,
+    });
+  };
+
   return (
     <div className="flex flex-col gap-4 w-full">
-      <div className="card bg-base-100 w-full rounded-lg">
-        <div className="card-title font-semibold bg-grad-primary">
-          Event filters
-        </div>
-        <ul className="list space-y-2 py-2">
-          {items.map(({ key, label, icon: Icon }) => (
-            <li
-              onClick={() => setFilter({ ...filter, query: key })}
-              className={clsx(
-                "list-row w-full items-center py-2 hover:bg-primary/20 cursor-pointer",
-                {
-                  "text-primary font-bold": filter.query === key,
+      {currentUser && (
+        <div className="card bg-base-100 w-full">
+          <div className="card-title font-semibold bg-grad-primary">
+            Event filters
+          </div>
+          <ul className="list space-y-2 py-2">
+            {items.map(({ key, label, icon: Icon }) => (
+              <li
+                onClick={() =>
+                  handleFilterChange({
+                    query: key,
+                    startDate: filter.startDate,
+                  })
                 }
-              )}
-              key={key}
-            >
-              <Icon className="w-10 h-10" />
-              <span className="text-lg">{label}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="card bg-base-100 w-full rounded-lg">
+                key={key}
+                className={clsx(
+                  "list-row w-full items-center py-2 hover:bg-primary/20 cursor-pointer",
+                  {
+                    "text-primary font-bold": filter.query === key,
+                  }
+                )}
+              >
+                <Icon className="w-10 h-10" />
+                <span className="text-lg">{label}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <div className="card bg-base-100 w-full">
         <div className="card-title bg-grad-primary">Start date</div>
         <Calendar
           value={new Date(filter.startDate)}
@@ -100,8 +116,8 @@ const EventFilters = ({ setFilter, filter }: Props) => {
             setCalendarViewDate(activeStartDate as Date)
           }
           onChange={(value) => {
-            setFilter({
-              ...filter,
+            handleFilterChange({
+              query: filter.query,
               startDate: (value as Date).toISOString(),
             });
           }}
@@ -109,6 +125,4 @@ const EventFilters = ({ setFilter, filter }: Props) => {
       </div>
     </div>
   );
-};
-
-export default EventFilters;
+}

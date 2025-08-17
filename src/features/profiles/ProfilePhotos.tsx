@@ -13,7 +13,7 @@ const ProfilePhotos = ({ profile, editMode }: Props) => {
       ) : (
         <div className="grid grid-cols-5 gap-3 h-[50vh] overflow-auto">
           <img
-            src={profile.photoURL}
+            src={profile.photoURL || "/user.png"}
             className="rounded-lg w-full"
             alt="uer main image"
           />
