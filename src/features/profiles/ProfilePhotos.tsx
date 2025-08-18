@@ -9,7 +9,7 @@ const ProfilePhotos = ({ profile, editMode }: Props) => {
   return (
     <div>
       {editMode ? (
-        <div>TODO: Photo upload goes here</div>
+        <div>Upload your photo</div>
       ) : (
         <div className="grid grid-cols-5 gap-3 h-[50vh] overflow-auto">
           <img
