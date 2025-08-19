@@ -1,7 +1,7 @@
-import { Link } from "react-router";
 import type { Attendee } from "../../../lib/types";
 import { useAppSelector } from "../../../lib/stores/store";
 import clsx from "clsx";
+import AuthLink from "../../../app/router/AuthLink";
 
 type Props = {
   attendees: Attendee[];
@@ -12,7 +12,7 @@ const EventAttendees = ({ attendees }: Props) => {
   return (
     <div className="avatar-group -space-x-5 hover:space-x-0">
       {attendees.map((attendee) => (
-        <Link
+        <AuthLink
           to={`/profiles/${attendee.id}`}
           className={clsx(
             "avatar w-12 ml-1 cursor-pointer transition-all duration-300",
@@ -24,7 +24,7 @@ const EventAttendees = ({ attendees }: Props) => {
           key={attendee.id}
         >
           <img src={attendee.photoURL || "/user.png"} alt="attendee avatar" />
-        </Link>
+        </AuthLink>
       ))}
     </div>
   );

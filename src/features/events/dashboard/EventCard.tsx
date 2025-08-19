@@ -25,9 +25,7 @@ const EventCard = ({ event }: Props) => {
             </figure>
             <div>
               <h2 className="card-title">{event.title}</h2>
-              <p className="text-sm text-neutral">
-                Hosted by {host?.displayName}
-              </p>
+              <p className="text-sm ">Hosted by {host?.displayName}</p>
             </div>
           </div>
           {event.isCancelled && (
@@ -53,9 +51,11 @@ const EventCard = ({ event }: Props) => {
                     Attending
                   </span>
                 )}
-              </div>
-              <div className="text-primary">
-                People you follow attending: {count}
+                {count > 0 && (
+                  <div className="badge badge-primary badge-soft">
+                    {count} {count > 1 ? "friends" : "person"} going
+                  </div>
+                )}
               </div>
             </div>
           </div>
