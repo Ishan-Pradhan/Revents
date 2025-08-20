@@ -25,7 +25,10 @@ export type AppEvent = {
   attendeeIds: string[];
 };
 
-export type FirestoreAppEvent = Omit<AppEvent, "date"> & { date: Timestamp };
+export type FirestoreAppEvent = Omit<AppEvent, "date"> & {
+  id: string;
+  date: Timestamp;
+};
 
 export type Attendee = {
   id: string;

@@ -73,7 +73,7 @@ const EventForm = () => {
     if (!currentUser) return;
     try {
       if (selectedEvent) {
-        await update(selectedEvent.id, {
+        await update(selectedEvent?.id, {
           ...selectedEvent,
           ...data,
           ...processFormData(data),
@@ -84,7 +84,7 @@ const EventForm = () => {
       } else {
         const newEvent = {
           ...data,
-
+          id,
           ...processFormData(data),
           hostUid: currentUser.uid,
           attendees: [

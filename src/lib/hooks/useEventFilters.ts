@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
-import { useAppSelector } from "../stores/store";
+import { useAppDispatch, useAppSelector } from "../stores/store";
 import type { CollectionOptions } from "../types";
+import { setCollectionOptions } from "../firebase/firestoreSlice";
 
 export const useEventFilters = () => {
+  const dispatch = useAppDispatch();
   const options = useAppSelector((state) => state.firestore.options["events"]);
   const startDateOpt = options?.queries?.find((q) => q.attribute === "date")
     ?.value as string;
@@ -27,7 +29,12 @@ export const useEventFilters = () => {
     startDate: startDateOpt || initialFilterState.startDate,
   });
 
-  const resetFilters = () => setFilter(initialFilterState);
+  const resetFilters = () => {
+    dispatch(
+      setCollectionOptions({ path: "events", options: collectionOptions })
+    );
+    setFilter(initialFilterState);
+  };
 
   const collectionOptions: CollectionOptions = useMemo(() => {
     return {

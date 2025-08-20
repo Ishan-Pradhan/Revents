@@ -10,7 +10,9 @@ import clsx from "clsx";
 const Navbar = () => {
   const user = useAppSelector((state) => state.account.user);
   const loading = useAppSelector((state) => state.firestore.loading);
-  const [selectedTheme, setSelectedTheme] = useState("light");
+  const [selectedTheme, setSelectedTheme] = useState(
+    localStorage.getItem("theme") || "light"
+  );
 
   useEffect(() => {
     themeChange(false);
