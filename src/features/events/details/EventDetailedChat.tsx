@@ -39,8 +39,8 @@ const EventDetailedChat = ({ expandedChat, setExpandedChat }: Props) => {
   } = useForm({ defaultValues: { comment: "" } });
 
   useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: "smooth" }, [comments]);
-  });
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [comments]);
 
   const onSubmit = async (data: FieldValues) => {
     if (!id || !currentUser) return;

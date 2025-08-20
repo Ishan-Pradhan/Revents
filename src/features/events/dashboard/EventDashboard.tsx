@@ -55,7 +55,7 @@ const EventDashboard = () => {
     <div className="flex gap-6 w-full">
       <div className="w-2/3 flex flex-col gap-4 ">
         <div className="flex flex-col gap-4">
-          {!loadedInitial && appEvents?.length === 0 ? (
+          {!loading && appEvents?.length === 0 ? (
             <EmptyState
               message="No events for this filter"
               onReset={resetFilters}
