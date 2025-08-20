@@ -26,7 +26,7 @@ export type AppEvent = {
 };
 
 export type FirestoreAppEvent = Omit<AppEvent, "date"> & {
-  id: string;
+  id?: string;
   date: Timestamp;
 };
 
